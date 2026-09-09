@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Search, Bell, MoreHorizontal, Home, Library, Plus, Heart, User, Bookmark,
-  ArrowLeft, ChevronDown, PenLine, RefreshCw,
+  ArrowLeft, ChevronDown, PenLine, RefreshCw, ScanLine, Keyboard, CameraOff,
 } from 'lucide-react';
 
 const COLORS = {
@@ -439,6 +439,142 @@ function BookDetailScreen({ book, status, onBack, showToast }) {
   );
 }
 
+/* ---------- 책 추가 방식 선택 ---------- */
+function AddChoiceScreen({ onScan, onManual, onCancel }) {
+  return (
+    <>
+      <div style={{ position: 'sticky', top: 0, zIndex: 10, display: 'flex', alignItems: 'center', gap: 12, padding: '20px 16px 12px', background: COLORS.bg }}>
+        <button onClick={onCancel} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: COLORS.text }}>
+          <ArrowLeft size={20} />
+        </button>
+        <h1 style={{ fontSize: 17, fontWeight: 700, margin: 0 }}>책 추가하기</h1>
+      </div>
+
+      <div style={{ flex: 1, padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <button
+          onClick={onScan}
+          style={{ display: 'flex', alignItems: 'center', gap: 14, padding: 18, background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 16, cursor: 'pointer', textAlign: 'left' }}
+        >
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: COLORS.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <ScanLine size={22} color="#fff" />
+          </div>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 700 }}>바코드로 스캔하기</div>
+            <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 2 }}>책 뒤표지 바코드를 카메라로 인식해요</div>
+          </div>
+        </button>
+
+        <button
+          onClick={onManual}
+          style={{ display: 'flex', alignItems: 'center', gap: 14, padding: 18, background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 16, cursor: 'pointer', textAlign: 'left' }}
+        >
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: COLORS.secondarySoft, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Keyboard size={22} color={COLORS.primary} />
+          </div>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 700 }}>직접 입력하기</div>
+            <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 2 }}>제목부터 하나씩 직접 써서 등록해요</div>
+          </div>
+        </button>
+      </div>
+    </>
+  );
+}
+
+/* ---------- 바코드 스캔 화면 ---------- */
+function ScanScreen({ onDetected, onCancel, showToast }) {
+  const readerRef = useRef(null);
+  const scannerInstanceRef = useRef(null);
+  const [status, setStatus] = useState('starting'); // starting | scanning | error
+
+  useEffect(() => {
+    let cancelled = false;
+
+    import('html5-qrcode').then(({ Html5Qrcode, Html5QrcodeSupportedFormats }) => {
+      if (cancelled) return;
+      const html5QrCode = new Html5Qrcode('barcode-reader');
+      scannerInstanceRef.current = html5QrCode;
+
+      html5QrCode
+        .start(
+          { facingMode: 'environment' },
+          {
+            fps: 10,
+          },
+          (decodedText) => {
+            html5QrCode
+              .stop()
+              .then(() => html5QrCode.clear())
+              .catch(() => {})
+              .finally(() => {
+                onDetected(decodedText);
+              });
+          },
+          () => {
+            /* 인식 시도 중 프레임 단위 실패는 무시 (정상 동작) */
+          }
+        )
+        .then(() => {
+          if (!cancelled) setStatus('scanning');
+        })
+        .catch(() => {
+          if (!cancelled) setStatus('error');
+        });
+    });
+
+    return () => {
+      cancelled = true;
+      const inst = scannerInstanceRef.current;
+      if (inst) {
+        inst.stop().then(() => inst.clear()).catch(() => {});
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <>
+      <div style={{ position: 'sticky', top: 0, zIndex: 10, display: 'flex', alignItems: 'center', gap: 12, padding: '20px 16px 12px', background: COLORS.bg }}>
+        <button onClick={onCancel} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: COLORS.text }}>
+          <ArrowLeft size={20} />
+        </button>
+        <h1 style={{ fontSize: 17, fontWeight: 700, margin: 0 }}>바코드 스캔</h1>
+      </div>
+
+      <div style={{ flex: 1, padding: '8px 16px 24px', display: 'flex', flexDirection: 'column' }}>
+        {status === 'error' ? (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, padding: '48px 16px', background: COLORS.surface, borderRadius: 16, border: `1px solid ${COLORS.border}`, textAlign: 'center' }}>
+            <CameraOff size={28} color={COLORS.textMuted} />
+            <div style={{ fontSize: 13, color: COLORS.text, fontWeight: 600 }}>카메라를 사용할 수 없어요</div>
+            <div style={{ fontSize: 12, color: COLORS.textMuted, lineHeight: 1.5 }}>
+              브라우저 카메라 권한을 허용했는지 확인해주세요.
+              또는 아래 버튼으로 직접 입력할 수 있어요.
+            </div>
+            <button
+              onClick={onCancel}
+              style={{ marginTop: 4, padding: '10px 18px', background: COLORS.primary, color: '#fff', border: 'none', borderRadius: 999, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+            >
+              뒤로 가기
+            </button>
+          </div>
+        ) : (
+          <>
+            <div
+              id="barcode-reader"
+              style={{ width: '100%', borderRadius: 16, overflow: 'hidden', background: '#000', minHeight: 240 }}
+            />
+            <div style={{ fontSize: 12, color: COLORS.textMuted, textAlign: 'center', marginTop: 16, lineHeight: 1.5 }}>
+              바코드가 화면에 크고 선명하게 보이도록 대주세요 (너무 가깝거나 기울어지지 않게).
+              <br />
+              {status === 'starting' ? '카메라를 여는 중이에요...' : '자동으로 인식돼요.'}
+            </div>
+          </>
+        )}
+      </div>
+    </>
+  );
+}
+
 /* ---------- 필드 헬퍼 컴포넌트 ---------- */
 function Field({ label, children }) {
   return (
@@ -462,9 +598,10 @@ const inputStyle = {
 };
 
 /* ---------- 책 상세 정보 저장하기 화면 ---------- */
-function BookFormScreen({ onCancel, onSave, showToast }) {
+function BookFormScreen({ onCancel, onSave, showToast, initialIsbn }) {
   const [title, setTitle] = useState('');
   const [titleError, setTitleError] = useState(false);
+  const [isbn, setIsbn] = useState(initialIsbn || '');
   const [author, setAuthor] = useState('');
   const [translator, setTranslator] = useState('');
   const [publisher, setPublisher] = useState('');
@@ -510,6 +647,7 @@ function BookFormScreen({ onCancel, onSave, showToast }) {
       stoppedReason: stoppedReason.trim(),
       palette: paletteIndex,
       coverImageUrl: coverImageUrl.trim(),
+      isbn: isbn.trim(),
     });
   };
 
@@ -570,6 +708,20 @@ function BookFormScreen({ onCancel, onSave, showToast }) {
             placeholder="https://... (비워두면 색상 표지를 사용해요)"
             style={inputStyle}
           />
+        </Field>
+
+        <Field label="ISBN (선택사항)">
+          <input
+            value={isbn}
+            onChange={(e) => setIsbn(e.target.value)}
+            placeholder="바코드 스캔 시 자동으로 채워져요"
+            style={inputStyle}
+          />
+          {initialIsbn && (
+            <div style={{ fontSize: 11, color: COLORS.primary, marginTop: 4, lineHeight: 1.5 }}>
+              바코드에서 ISBN을 읽었어요. 도서 정보 자동 조회는 아직 연결 전이라, 아래 정보는 직접 입력해주세요.
+            </div>
+          )}
         </Field>
 
         {/* 2단계: 기본 서지 정보 */}
@@ -706,6 +858,7 @@ export default function App() {
   const [screen, setScreen] = useState('home');
   const [selected, setSelected] = useState(null);
   const [toast, setToast] = useState('');
+  const [scannedIsbn, setScannedIsbn] = useState('');
   const [books, setBooks] = useState({
     reading: initialReading,
     completed: initialCompleted,
@@ -728,7 +881,20 @@ export default function App() {
     setSelected(null);
   };
 
-  const handleAddBook = () => setScreen('form');
+  const handleAddBook = () => setScreen('addChoice');
+
+  const handleGoScan = () => setScreen('scan');
+
+  const handleGoManualForm = () => {
+    setScannedIsbn('');
+    setScreen('form');
+  };
+
+  const handleBarcodeDetected = (code) => {
+    setScannedIsbn(code);
+    showToast(`바코드 인식 완료: ${code}`);
+    setScreen('form');
+  };
 
   const handleSaveBook = (data) => {
     const id = Date.now();
@@ -776,7 +942,13 @@ export default function App() {
           <BookDetailScreen book={selected.book} status={selected.status} onBack={handleBack} showToast={showToast} />
         )}
         {screen === 'form' && (
-          <BookFormScreen onCancel={handleBack} onSave={handleSaveBook} showToast={showToast} />
+          <BookFormScreen onCancel={handleBack} onSave={handleSaveBook} showToast={showToast} initialIsbn={scannedIsbn} />
+        )}
+        {screen === 'addChoice' && (
+          <AddChoiceScreen onScan={handleGoScan} onManual={handleGoManualForm} onCancel={handleBack} />
+        )}
+        {screen === 'scan' && (
+          <ScanScreen onDetected={handleBarcodeDetected} onCancel={() => setScreen('addChoice')} showToast={showToast} />
         )}
         <Toast message={toast} />
       </div>
