@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Search, Bell, MoreHorizontal, Home, Library, Plus, Heart, User, Bookmark,
-  ArrowLeft, ChevronDown, PenLine, RefreshCw, ScanLine, Keyboard, CameraOff,
+  ArrowLeft, ChevronDown, PenLine, RefreshCw, ScanLine, Keyboard, CameraOff, Camera,
+  Lightbulb, HelpCircle, Sparkles,
 } from 'lucide-react';
 
 const COLORS = {
@@ -15,6 +16,9 @@ const COLORS = {
   border: '#E4E3DD',
   danger: '#B3261E',
 };
+
+const AI_BG = '#EFEDF8';
+const AI_BORDER = '#DCD8ED';
 
 const FONT_STACK =
   "'Apple SD Gothic Neo', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif";
@@ -32,32 +36,42 @@ const PALETTES = [
 
 const GENRES = ['소설', '자기계발', '시/에세이', '심리학', '과학', '경제/경영', '마케팅', '기타'];
 
-const sampleRecords = [
-  { id: 'r1', date: '2025.08.29', text: '이 책을 읽으면서 나는 사람을 이해하는 일이 얼마나 어렵고, 또 중요한 일인지 다시 한번 느꼈다. 특히 "모든 사람은 저마다의 사정이 있다"라는 문장이 계속 마음에 남았다.' },
-  { id: 'r2', date: '2025.08.27', text: '유년 시절의 한 장면이 한 사람의 태도와 세계관을 어떻게 만드는지 다시 생각해봤다.' },
-  { id: 'r3', date: '2025.08.24', text: '주인공의 두려움이 오히려 담담하게 와닿았다. 내가 느끼는 두려움은 무엇일까?' },
-  { id: 'r4', date: '2025.08.20', text: '처음 인상은 담백했지만, 읽을수록 문장이 섬세하다는 걸 느낀다.' },
-];
+const emptyRound = () => ({ status: 'empty', blocks: [], completedDate: null, questions: [] });
+
+const seededRound1 = {
+  status: 'completed',
+  completedDate: '2025.08.29',
+  blocks: [
+    { id: 'b1', kind: 'quote', quoteText: '모든 사람은 저마다의 사정이 있다.', thoughtText: '이 문장을 읽으면서 나는 사람을 이해하는 일이 얼마나 어렵고, 또 중요한 일인지 다시 한번 느꼈다.' },
+    { id: 'b2', kind: 'free', text: '유년 시절의 한 장면이 한 사람의 태도와 세계관을 어떻게 만드는지 다시 생각해봤다. 주인공의 두려움이 오히려 담담하게 와닿았다. 내가 느끼는 두려움은 무엇일까?' },
+    { id: 'b3', kind: 'tag', label: '새롭게 알게 된 부분', text: '처음 인상은 담백했지만, 읽을수록 문장이 섬세하다는 걸 느낀다.' },
+  ],
+  questions: [
+    { id: 'q1', text: '이 책을 통해 새롭게 바라보게 된 가치관은 무엇인가요?', answer: '' },
+    { id: 'q2', text: '주인공의 선택을 나라면 어떻게 했을지 생각해볼 수 있나요?', answer: '' },
+    { id: 'q3', text: '이 책이 지금의 나에게 던지고자 하는 메시지는 무엇일까요?', answer: '' },
+  ],
+};
 
 const initialReading = [
-  { id: 1, title: '아무튼, 여름', author: '김신희', progress: 42, palette: 0, note: '여름은 매번 나에게 다른 질문을 던진다.', current: true, isFavoriteBook: false, records: { 1: sampleRecords, 2: [], 3: [] } },
-  { id: 2, title: '인간관계론', author: '데일 카네기', progress: 67, palette: 1, isFavoriteBook: false, records: { 1: [], 2: [], 3: [] } },
-  { id: 3, title: '도둑맞은 집중력', author: '요한 하리', progress: 39, palette: 2, isFavoriteBook: false, records: { 1: [], 2: [], 3: [] } },
-  { id: 4, title: '단순하게 산다는 것', author: '도미니크 로로', progress: 20, palette: 3, isFavoriteBook: false, records: { 1: [], 2: [], 3: [] } },
-  { id: 5, title: '나는 나로 살기로 했다', author: '김수현', progress: 10, palette: 4, isFavoriteBook: false, records: { 1: [], 2: [], 3: [] } },
-  { id: 6, title: '오늘도 잘 버텨냈습니다', author: '전건우', progress: 4, palette: 5, isFavoriteBook: false, records: { 1: [], 2: [], 3: [] } },
+  { id: 1, title: '아무튼, 여름', author: '김신희', progress: 42, palette: 0, note: '여름은 매번 나에게 다른 질문을 던진다.', current: true, isFavoriteBook: false, records: { 1: seededRound1, 2: emptyRound(), 3: emptyRound() } },
+  { id: 2, title: '인간관계론', author: '데일 카네기', progress: 67, palette: 1, isFavoriteBook: false, records: { 1: emptyRound(), 2: emptyRound(), 3: emptyRound() } },
+  { id: 3, title: '도둑맞은 집중력', author: '요한 하리', progress: 39, palette: 2, isFavoriteBook: false, records: { 1: emptyRound(), 2: emptyRound(), 3: emptyRound() } },
+  { id: 4, title: '단순하게 산다는 것', author: '도미니크 로로', progress: 20, palette: 3, isFavoriteBook: false, records: { 1: emptyRound(), 2: emptyRound(), 3: emptyRound() } },
+  { id: 5, title: '나는 나로 살기로 했다', author: '김수현', progress: 10, palette: 4, isFavoriteBook: false, records: { 1: emptyRound(), 2: emptyRound(), 3: emptyRound() } },
+  { id: 6, title: '오늘도 잘 버텨냈습니다', author: '전건우', progress: 4, palette: 5, isFavoriteBook: false, records: { 1: emptyRound(), 2: emptyRound(), 3: emptyRound() } },
 ];
 
 const initialCompleted = [
-  { id: 7, title: '사피엔스', author: '유발 하라리', date: '2026.07.30', note: '인류는 결국 이야기를 믿는 동물이다.', palette: 6, isFavoriteBook: true, records: { 1: sampleRecords.slice(0, 2), 2: [], 3: [] } },
-  { id: 8, title: '미움받을 용기', author: '기시미 이치로', date: '2026.08.10', note: '과거는 바꿀 수 없어도, 지금은 바꿀 수 있다.', palette: 7, isFavoriteBook: false, records: { 1: [], 2: [], 3: [] } },
-  { id: 9, title: '죽음의 수용소에서', author: '빅터 프랭클', date: '2026.08.05', note: '왜 살아야 하는지 아는 사람은 견딘다.', palette: 0, isFavoriteBook: false, records: { 1: [], 2: [], 3: [] } },
-  { id: 10, title: '달러구트 꿈 백화점', author: '이미예', date: '2026.07.20', note: '꿈도 결국, 우리가 고르는 것이다.', palette: 1, isFavoriteBook: false, records: { 1: [], 2: [], 3: [] } },
+  { id: 7, title: '사피엔스', author: '유발 하라리', date: '2026.07.30', note: '인류는 결국 이야기를 믿는 동물이다.', palette: 6, isFavoriteBook: true, records: { 1: { status: 'completed', completedDate: '2026.07.30', blocks: [{ id: 'b1', kind: 'free', text: '인류는 결국 이야기를 믿는 동물이다. 화폐, 국가, 종교 모두 우리가 함께 믿기로 한 이야기일 뿐이라는 게 계속 마음에 남았다.' }], questions: [] }, 2: emptyRound(), 3: emptyRound() } },
+  { id: 8, title: '미움받을 용기', author: '기시미 이치로', date: '2026.08.10', note: '과거는 바꿀 수 없어도, 지금은 바꿀 수 있다.', palette: 7, isFavoriteBook: false, records: { 1: emptyRound(), 2: emptyRound(), 3: emptyRound() } },
+  { id: 9, title: '죽음의 수용소에서', author: '빅터 프랭클', date: '2026.08.05', note: '왜 살아야 하는지 아는 사람은 견딘다.', palette: 0, isFavoriteBook: false, records: { 1: emptyRound(), 2: emptyRound(), 3: emptyRound() } },
+  { id: 10, title: '달러구트 꿈 백화점', author: '이미예', date: '2026.07.20', note: '꿈도 결국, 우리가 고르는 것이다.', palette: 1, isFavoriteBook: false, records: { 1: emptyRound(), 2: emptyRound(), 3: emptyRound() } },
 ];
 
 const initialPaused = [
-  { id: 14, title: '코스모스', author: '칼 세이건', progress: 31, pausedDate: '2026.06.02', stoppedReason: '지금의 나에게는 이해하기 어려웠다.', palette: 2, isFavoriteBook: false, records: { 1: [], 2: [], 3: [] } },
-  { id: 15, title: '총, 균, 쇠', author: '재레드 다이아몬드', progress: 18, pausedDate: '2026.05.14', stoppedReason: '나중에 다시 읽고 싶어 잠시 멈췄다.', palette: 5, isFavoriteBook: false, records: { 1: [], 2: [], 3: [] } },
+  { id: 14, title: '코스모스', author: '칼 세이건', progress: 31, pausedDate: '2026.06.02', stoppedReason: '지금의 나에게는 이해하기 어려웠다.', palette: 2, isFavoriteBook: false, records: { 1: emptyRound(), 2: emptyRound(), 3: emptyRound() } },
+  { id: 15, title: '총, 균, 쇠', author: '재레드 다이아몬드', progress: 18, pausedDate: '2026.05.14', stoppedReason: '나중에 다시 읽고 싶어 잠시 멈췄다.', palette: 5, isFavoriteBook: false, records: { 1: emptyRound(), 2: emptyRound(), 3: emptyRound() } },
 ];
 
 const initialWishlist = [
@@ -74,6 +88,24 @@ const TABS = [
 ];
 
 const STATUS_LABEL = { reading: '읽는 중', completed: '완독', wishlist: '읽고 싶은 책', paused: '중단' };
+
+const TAG_OPTIONS = [
+  { label: '새롭게 알게 된 부분', Icon: Lightbulb },
+  { label: '나에게 던지는 질문', Icon: HelpCircle },
+  { label: '감정/느낌', Icon: Heart },
+  { label: '떠오른 생각', Icon: Sparkles },
+];
+
+function tagIcon(label) {
+  const found = TAG_OPTIONS.find((t) => t.label === label);
+  return found ? found.Icon : Lightbulb;
+}
+
+function blocksPreviewText(blocks) {
+  const b = blocks.find((x) => (x.kind === 'free' && x.text) || (x.kind === 'tag' && x.text) || (x.kind === 'quote' && x.thoughtText));
+  if (!b) return '';
+  return b.kind === 'quote' ? b.thoughtText : b.text;
+}
 
 function BookCover({ palette, title, imageUrl, size = 'grid' }) {
   const [imgError, setImgError] = useState(false);
@@ -137,6 +169,8 @@ function HomeScreen({ books, onSelectBook, onAddBook, showToast }) {
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 96, paddingLeft: 16, paddingRight: 16 }}>
+        <div style={{ fontSize: 15, fontWeight: 600, color: COLORS.text, marginBottom: 16 }}>오늘 하루도 당신 거예요</div>
+
         <div style={{ marginTop: 4, marginBottom: 24 }}>
           <div style={{ fontSize: 13, color: COLORS.textMuted, fontWeight: 500, marginBottom: 8 }}>지금 읽고 있는 책</div>
           {currentBook ? (
@@ -276,18 +310,19 @@ function HomeScreen({ books, onSelectBook, onAddBook, showToast }) {
   );
 }
 
-/* ---------- 책 상세 화면 (읽기 기록) ---------- */
-function BookDetailScreen({ book, status, onBack, showToast }) {
+/* ---------- 책 상세 화면 ---------- */
+function BookDetailScreen({ book, status, onBack, onOpenRecord, showToast }) {
   const [round, setRound] = useState(1);
   const [note, setNote] = useState(book.note || '');
   const [editingNote, setEditingNote] = useState(false);
 
   const p = PALETTES[book.palette % PALETTES.length];
-  const records = (book.records && book.records[round]) || [];
+  const roundData = book.records[round];
+  const preview = blocksPreviewText(roundData.blocks);
 
   return (
     <>
-      <div style={{ position: 'relative', height: 180, background: book.coverImageUrl ? p.bg : p.bg, flexShrink: 0, overflow: 'hidden' }}>
+      <div style={{ position: 'relative', height: 180, background: p.bg, flexShrink: 0, overflow: 'hidden' }}>
         {book.coverImageUrl && (
           <img
             src={book.coverImageUrl}
@@ -301,7 +336,7 @@ function BookDetailScreen({ book, status, onBack, showToast }) {
             <ArrowLeft size={18} color="#fff" />
           </button>
           <button
-            onClick={() => showToast('책 정보 수정 화면 연결은 다음 단계에서 진행할 예정이에요')}
+            onClick={() => showToast('개인 테마 이미지 변경은 다음 단계에서 만들 예정이에요')}
             style={{ background: 'rgba(255,255,255,0.16)', border: 'none', borderRadius: '50%', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
           >
             <MoreHorizontal size={18} color="#fff" />
@@ -390,52 +425,284 @@ function BookDetailScreen({ book, status, onBack, showToast }) {
           ))}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 16px 8px' }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>기록 {records.length}개</div>
-          {records.length > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 2, fontSize: 12, color: COLORS.textMuted }}>
-              최신순 <ChevronDown size={14} />
-            </div>
-          )}
-        </div>
-
-        <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {records.length === 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 0', background: COLORS.surface, borderRadius: 16, border: `1px solid ${COLORS.border}` }}>
-              <div style={{ fontSize: 13, color: COLORS.textMuted }}>{round}회독에는 아직 기록이 없어요.</div>
-            </div>
-          ) : (
-            records.map((rec) => (
-              <button
-                key={rec.id}
-                onClick={() => showToast('기록 상세 화면은 다음 단계에서 만들 예정이에요')}
-                style={{ textAlign: 'left', background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: 14, cursor: 'pointer' }}
-              >
-                <div style={{ fontSize: 11, color: COLORS.textMuted, marginBottom: 6 }}>{rec.date}</div>
-                <div
-                  style={{
-                    fontSize: 13, color: COLORS.text, lineHeight: 1.55,
-                    display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
-                  }}
-                >
-                  {rec.text}
-                </div>
-              </button>
-            ))
-          )}
-        </div>
-
         <div style={{ padding: '20px 16px 0' }}>
-          <button
-            onClick={() => showToast('기록 작성 화면은 다음 단계에서 만들 예정이에요')}
-            style={{ width: '100%', padding: '13px 0', background: COLORS.primary, color: '#fff', border: 'none', borderRadius: 999, fontSize: 14, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
-          >
-            <PenLine size={16} />
-            새 기록 시작하기
-          </button>
+          {roundData.status === 'empty' ? (
+            <button
+              onClick={() => onOpenRecord(round, 'edit')}
+              style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '40px 20px', background: COLORS.surface, border: `1.5px dashed ${COLORS.secondary}`, borderRadius: 16, cursor: 'pointer' }}
+            >
+              <PenLine size={20} color={COLORS.primary} />
+              <span style={{ fontSize: 13, fontWeight: 600, color: COLORS.primary }}>{round}회독 기록 시작하기</span>
+            </button>
+          ) : (
+            <div style={{ width: '100%', textAlign: 'left', background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: 16 }}>
+              {roundData.status === 'completed' && (
+                <div style={{ fontSize: 11, color: COLORS.textMuted, marginBottom: 8 }}>완료 · {roundData.completedDate}</div>
+              )}
+              {roundData.status === 'active' && (
+                <div style={{ fontSize: 11, color: COLORS.primary, marginBottom: 8 }}>작성 중</div>
+              )}
+              <div
+                style={{
+                  fontSize: 14, color: COLORS.text, lineHeight: 1.7,
+                  display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                }}
+              >
+                {preview || '탭해서 이어서 써보세요'}
+              </div>
+              <div style={{ display: 'flex', gap: 16, marginTop: 12 }}>
+                {roundData.status === 'completed' && (
+                  <button onClick={() => onOpenRecord(round, 'read')} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: 12, color: COLORS.primary, fontWeight: 600 }}>
+                    다시 읽기 →
+                  </button>
+                )}
+                <button onClick={() => onOpenRecord(round, 'edit')} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: 12, color: COLORS.primary, fontWeight: 600 }}>
+                  이어서 쓰기 →
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </>
+  );
+}
+
+/* ---------- 선택지 행 UI ---------- */
+function OptionRow({ Icon, label, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+        padding: '13px 14px', marginBottom: 8, borderRadius: 12,
+        border: `1px solid ${COLORS.border}`, background: COLORS.surface, cursor: 'pointer',
+      }}
+    >
+      <Icon size={18} color={COLORS.primary} />
+      <span style={{ flex: 1, textAlign: 'left', fontSize: 14, fontWeight: 600, color: COLORS.text }}>{label}</span>
+      <Plus size={16} color={COLORS.textMuted} />
+    </button>
+  );
+}
+
+function CaptureRow({ onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+        padding: '13px 14px', marginTop: 4, borderRadius: 12,
+        border: 'none', background: COLORS.secondarySoft, cursor: 'pointer',
+      }}
+    >
+      <Camera size={18} color={COLORS.primary} />
+      <span style={{ flex: 1, textAlign: 'left', fontSize: 14, fontWeight: 700, color: COLORS.primary }}>문장 가져오기</span>
+    </button>
+  );
+}
+
+/* ---------- 기록 작성 화면 ---------- */
+function RecordScreen({ book, round, roundData, mode, onBack, onUpdateBlocks, onComplete, onGoToQuestions, showToast }) {
+  const [blocks, setBlocks] = useState(
+    roundData.blocks.length ? roundData.blocks : [{ id: `blk-${Date.now()}`, kind: 'free', text: '' }]
+  );
+  const isCompleted = roundData.status === 'completed';
+  const readOnlyMode = mode === 'read';
+
+  const commit = (newBlocks) => {
+    setBlocks(newBlocks);
+    onUpdateBlocks(round, newBlocks);
+  };
+
+  const updateBlockText = (id, field, value) => {
+    commit(blocks.map((b) => (b.id === id ? { ...b, [field]: value } : b)));
+  };
+
+  const addTagBlock = (label) => {
+    commit([...blocks, { id: `blk-${Date.now()}`, kind: 'tag', label, text: '' }]);
+  };
+
+  const handleComplete = () => {
+    if (!window.confirm('이번 회독 기록을 완료할까요?\n(완료 후에도 이어서 쓸 수 있어요)')) return;
+    onComplete(round);
+  };
+
+  const sortedQuestions = roundData.questions.length
+    ? [...roundData.questions].sort((a, b) => (a.answer ? 0 : 1) - (b.answer ? 0 : 1))
+    : [];
+
+  return (
+    <>
+      <div style={{ position: 'sticky', top: 0, zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 16px 10px', background: COLORS.bg }}>
+        <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: COLORS.text, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <ArrowLeft size={20} />
+          <span style={{ fontSize: 13, color: COLORS.textMuted, fontWeight: 500 }}>{book.title} · {round}회독</span>
+        </button>
+        <span style={{ fontSize: 11, color: COLORS.textMuted }}>{readOnlyMode ? '읽기 전용' : isCompleted ? '완료됨' : '자동 저장됨'}</span>
+      </div>
+
+      <div style={{ flex: 1, overflowY: 'auto', padding: '8px 16px 32px' }}>
+        {blocks.map((block, idx) => {
+          if (block.kind === 'free') {
+            return readOnlyMode ? (
+              <div key={block.id} style={{ fontSize: 16, lineHeight: 1.8, color: COLORS.text, whiteSpace: 'pre-wrap', marginBottom: 20 }}>
+                {block.text}
+              </div>
+            ) : (
+              <textarea
+                key={block.id}
+                value={block.text}
+                onChange={(e) => updateBlockText(block.id, 'text', e.target.value)}
+                placeholder={idx === 0 ? '무엇이든 편하게 적어보세요' : ''}
+                rows={Math.max(4, Math.ceil(block.text.length / 28))}
+                style={{
+                  width: '100%', border: 'none', outline: 'none', resize: 'vertical',
+                  fontFamily: FONT_STACK, fontSize: 16, lineHeight: 1.8, color: COLORS.text,
+                  background: 'transparent', padding: 0, marginBottom: 20,
+                }}
+              />
+            );
+          }
+          if (block.kind === 'tag') {
+            const Icon = tagIcon(block.label);
+            return (
+              <div key={block.id} style={{ marginBottom: 20 }}>
+                <div style={{ borderTop: `1px solid ${COLORS.border}`, paddingTop: 14 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                    <Icon size={14} color={COLORS.primary} />
+                    <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.primary }}>{block.label}</div>
+                  </div>
+                  {readOnlyMode ? (
+                    <div style={{ fontSize: 15, lineHeight: 1.8, color: COLORS.text, whiteSpace: 'pre-wrap' }}>{block.text}</div>
+                  ) : (
+                    <textarea
+                      value={block.text}
+                      onChange={(e) => updateBlockText(block.id, 'text', e.target.value)}
+                      rows={Math.max(2, Math.ceil(block.text.length / 28))}
+                      style={{
+                        width: '100%', border: 'none', outline: 'none', resize: 'vertical',
+                        fontFamily: FONT_STACK, fontSize: 15, lineHeight: 1.8, color: COLORS.text,
+                        background: 'transparent', padding: 0,
+                      }}
+                    />
+                  )}
+                </div>
+              </div>
+            );
+          }
+          if (block.kind === 'quote') {
+            return (
+              <div key={block.id} style={{ marginBottom: 20 }}>
+                <div style={{ borderLeft: `3px solid ${COLORS.secondary}`, paddingLeft: 14, marginBottom: 10 }}>
+                  <div style={{ fontSize: 15, fontStyle: 'italic', color: COLORS.text, lineHeight: 1.7 }}>
+                    "{block.quoteText}"
+                  </div>
+                </div>
+                {readOnlyMode ? (
+                  <div style={{ fontSize: 15, lineHeight: 1.8, color: COLORS.text, whiteSpace: 'pre-wrap' }}>{block.thoughtText}</div>
+                ) : (
+                  <textarea
+                    value={block.thoughtText}
+                    onChange={(e) => updateBlockText(block.id, 'thoughtText', e.target.value)}
+                    placeholder="이 문장에 대한 내 생각"
+                    rows={Math.max(2, Math.ceil((block.thoughtText || '').length / 28))}
+                    style={{
+                      width: '100%', border: 'none', outline: 'none', resize: 'vertical',
+                      fontFamily: FONT_STACK, fontSize: 15, lineHeight: 1.8, color: COLORS.text,
+                      background: 'transparent', padding: 0,
+                    }}
+                  />
+                )}
+              </div>
+            );
+          }
+          return null;
+        })}
+
+        {!readOnlyMode && (
+          <div style={{ marginTop: 8, marginBottom: 28 }}>
+            {TAG_OPTIONS.map((opt) => (
+              <OptionRow key={opt.label} Icon={opt.Icon} label={opt.label} onClick={() => addTagBlock(opt.label)} />
+            ))}
+            <CaptureRow onClick={() => showToast('OCR 촬영 기능은 다음 단계에서 만들 예정이에요')} />
+          </div>
+        )}
+
+        {!readOnlyMode && !isCompleted && (
+          <button
+            onClick={handleComplete}
+            style={{ width: '100%', padding: '13px 0', background: COLORS.primary, color: '#fff', border: 'none', borderRadius: 999, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
+          >
+            기록 완료
+          </button>
+        )}
+
+        {isCompleted && (
+          <div style={{ marginTop: 8, padding: 16, background: AI_BG, border: `1px solid ${AI_BORDER}`, borderRadius: 16 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4, color: COLORS.text }}>AI 질문</div>
+            <div style={{ fontSize: 11, color: COLORS.textMuted, marginBottom: 16 }}>
+              실제 AI 연결은 다음 단계에서 진행할 예정이라, 지금은 예시 질문이에요.
+            </div>
+            {sortedQuestions.map((q) => (
+              <div key={q.id} style={{ marginBottom: 14 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text, marginBottom: 6, lineHeight: 1.5 }}>{q.text}</div>
+                <div style={{ fontSize: 13, color: q.answer ? COLORS.text : COLORS.textMuted, lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                  {q.answer || '아직 답변하지 않았어요'}
+                </div>
+              </div>
+            ))}
+            {!readOnlyMode && (
+              <button
+                onClick={() => onGoToQuestions(round)}
+                style={{ marginTop: 4, background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: 12, color: COLORS.primary, fontWeight: 700 }}
+              >
+                질문에 답하기 →
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+/* ---------- AI 질문 페이지 ---------- */
+function AIQuestionScreen({ book, round, roundData, onUpdateAnswer, onClose }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: AI_BG }}>
+      <div style={{ padding: '20px 16px 8px' }}>
+        <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: 2 }}>{book.title} · {round}회독</div>
+        <div style={{ fontSize: 17, fontWeight: 700, color: COLORS.text }}>AI 질문</div>
+      </div>
+
+      <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px 24px' }}>
+        {roundData.questions.map((q) => (
+          <div key={q.id} style={{ marginBottom: 26 }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: COLORS.text, marginBottom: 10, lineHeight: 1.5 }}>{q.text}</div>
+            <textarea
+              value={q.answer}
+              onChange={(e) => onUpdateAnswer(round, q.id, e.target.value)}
+              placeholder="여기에 답변을 작성해주세요 (답하지 않아도 괜찮아요)"
+              rows={3}
+              style={{
+                width: '100%', border: `1px solid ${AI_BORDER}`, borderRadius: 12, padding: 12,
+                fontFamily: FONT_STACK, fontSize: 14, color: COLORS.text, background: COLORS.surface, resize: 'none',
+              }}
+            />
+          </div>
+        ))}
+      </div>
+
+      <div style={{ padding: '12px 16px 24px' }}>
+        <button
+          onClick={onClose}
+          style={{ width: '100%', padding: '13px 0', background: COLORS.primary, color: '#fff', border: 'none', borderRadius: 999, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
+        >
+          닫기
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -483,14 +750,13 @@ function AddChoiceScreen({ onScan, onManual, onCancel }) {
 
 /* ---------- 바코드 스캔 화면 ---------- */
 function ScanScreen({ onDetected, onCancel, showToast }) {
-  const readerRef = useRef(null);
   const scannerInstanceRef = useRef(null);
-  const [status, setStatus] = useState('starting'); // starting | scanning | error
+  const [status, setStatus] = useState('starting');
 
   useEffect(() => {
     let cancelled = false;
 
-    import('html5-qrcode').then(({ Html5Qrcode, Html5QrcodeSupportedFormats }) => {
+    import('html5-qrcode').then(({ Html5Qrcode }) => {
       if (cancelled) return;
       const html5QrCode = new Html5Qrcode('barcode-reader');
       scannerInstanceRef.current = html5QrCode;
@@ -500,6 +766,9 @@ function ScanScreen({ onDetected, onCancel, showToast }) {
           { facingMode: 'environment' },
           {
             fps: 10,
+            experimentalFeatures: {
+              useBarCodeDetectorIfSupported: false,
+            },
           },
           (decodedText) => {
             html5QrCode
@@ -510,9 +779,7 @@ function ScanScreen({ onDetected, onCancel, showToast }) {
                 onDetected(decodedText);
               });
           },
-          () => {
-            /* 인식 시도 중 프레임 단위 실패는 무시 (정상 동작) */
-          }
+          () => {}
         )
         .then(() => {
           if (!cancelled) setStatus('scanning');
@@ -529,7 +796,6 @@ function ScanScreen({ onDetected, onCancel, showToast }) {
         inst.stop().then(() => inst.clear()).catch(() => {});
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -575,7 +841,7 @@ function ScanScreen({ onDetected, onCancel, showToast }) {
   );
 }
 
-/* ---------- 필드 헬퍼 컴포넌트 ---------- */
+/* ---------- 필드 헬퍼 ---------- */
 function Field({ label, children }) {
   return (
     <div style={{ marginBottom: 16 }}>
@@ -597,7 +863,7 @@ const inputStyle = {
   boxSizing: 'border-box',
 };
 
-/* ---------- 책 상세 정보 저장하기 화면 ---------- */
+/* ---------- 책 정보 저장 화면 ---------- */
 function BookFormScreen({ onCancel, onSave, showToast, initialIsbn }) {
   const [title, setTitle] = useState('');
   const [titleError, setTitleError] = useState(false);
@@ -617,6 +883,43 @@ function BookFormScreen({ onCancel, onSave, showToast, initialIsbn }) {
   const [stoppedReason, setStoppedReason] = useState('');
   const [paletteIndex, setPaletteIndex] = useState(Math.floor(Math.random() * PALETTES.length));
   const [coverImageUrl, setCoverImageUrl] = useState('');
+  const [lookupStatus, setLookupStatus] = useState('idle');
+
+  const lookupIsbn = async (isbnRaw) => {
+    const cleanIsbn = (isbnRaw || '').replace(/[^0-9Xx]/g, '');
+    if (!cleanIsbn) return;
+    setLookupStatus('loading');
+    try {
+      const url = `https://www.nl.go.kr/seoji/SearchApi.do?cert_key=2d75eb13b9b6aebddf16a87cf0578ea64efc69aa13b56b0c02dab564002dbda9&result_style=json&page_no=1&page_size=1&isbn=${cleanIsbn}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const book = data && data.docs && data.docs[0];
+      if (book && Number(data.TOTAL_COUNT) > 0) {
+        if (book.TITLE) setTitle(book.TITLE.trim());
+        if (book.AUTHOR) setAuthor(book.AUTHOR.trim());
+        if (book.PUBLISHER) setPublisher(book.PUBLISHER.trim());
+        const dateStr = book.REAL_PUBLISH_DATE || book.PUBLISH_PREDATE || '';
+        if (dateStr && dateStr.length >= 4) setYear(dateStr.slice(0, 4));
+        if (book.PAGE) {
+          const pageMatch = book.PAGE.match(/\d+/);
+          if (pageMatch) setTotalPages(pageMatch[0]);
+        }
+        if (book.TITLE_URL) setCoverImageUrl(book.TITLE_URL);
+        setLookupStatus('success');
+      } else {
+        setLookupStatus('notfound');
+      }
+    } catch (e) {
+      setLookupStatus('error');
+    }
+  };
+
+  useEffect(() => {
+    if (initialIsbn) {
+      lookupIsbn(initialIsbn);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const statuses = [
     { key: 'wishlist', label: '읽고 싶은 책' },
@@ -661,7 +964,6 @@ function BookFormScreen({ onCancel, onSave, showToast, initialIsbn }) {
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '4px 16px 32px' }}>
-        {/* 1단계: 책 식별 영역 */}
         <div style={{ display: 'flex', gap: 16, marginBottom: 12 }}>
           <div style={{ width: 96, flexShrink: 0 }}>
             <BookCover palette={paletteIndex} title={title || '표지'} imageUrl={coverImageUrl} size="hero" />
@@ -711,20 +1013,38 @@ function BookFormScreen({ onCancel, onSave, showToast, initialIsbn }) {
         </Field>
 
         <Field label="ISBN (선택사항)">
-          <input
-            value={isbn}
-            onChange={(e) => setIsbn(e.target.value)}
-            placeholder="바코드 스캔 시 자동으로 채워져요"
-            style={inputStyle}
-          />
-          {initialIsbn && (
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input
+              value={isbn}
+              onChange={(e) => setIsbn(e.target.value)}
+              placeholder="바코드 스캔 시 자동으로 채워져요"
+              style={{ ...inputStyle, flex: 1 }}
+            />
+            <button
+              onClick={() => lookupIsbn(isbn)}
+              disabled={lookupStatus === 'loading'}
+              style={{ padding: '0 16px', background: COLORS.primary, color: '#fff', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
+            >
+              {lookupStatus === 'loading' ? '조회 중...' : '조회'}
+            </button>
+          </div>
+          {lookupStatus === 'success' && (
             <div style={{ fontSize: 11, color: COLORS.primary, marginTop: 4, lineHeight: 1.5 }}>
-              바코드에서 ISBN을 읽었어요. 도서 정보 자동 조회는 아직 연결 전이라, 아래 정보는 직접 입력해주세요.
+              도서 정보를 찾아 자동으로 채워졌어요. 확인 후 필요하면 수정해주세요.
+            </div>
+          )}
+          {lookupStatus === 'notfound' && (
+            <div style={{ fontSize: 11, color: COLORS.textMuted, marginTop: 4, lineHeight: 1.5 }}>
+              일치하는 도서 정보를 찾지 못했어요. 직접 입력해주세요.
+            </div>
+          )}
+          {lookupStatus === 'error' && (
+            <div style={{ fontSize: 11, color: COLORS.danger, marginTop: 4, lineHeight: 1.5 }}>
+              지금은 자동 조회를 할 수 없어요. 직접 입력해주세요.
             </div>
           )}
         </Field>
 
-        {/* 2단계: 기본 서지 정보 */}
         <Field label="저자">
           <input value={author} onChange={(e) => setAuthor(e.target.value)} placeholder="저자명" style={inputStyle} />
         </Field>
@@ -745,7 +1065,6 @@ function BookFormScreen({ onCancel, onSave, showToast, initialIsbn }) {
           </select>
         </Field>
 
-        {/* 3단계: 책 상태 */}
         <div style={{ marginBottom: 8 }}>
           <div style={{ fontSize: 12, color: COLORS.textMuted, fontWeight: 600, marginBottom: 8 }}>책 상태</div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -766,7 +1085,6 @@ function BookFormScreen({ onCancel, onSave, showToast, initialIsbn }) {
           </div>
         </div>
 
-        {/* 4단계: 상태별 조건부 정보 */}
         <div style={{ marginTop: 20, padding: 14, background: COLORS.surface, borderRadius: 16, border: `1px solid ${COLORS.border}` }}>
           {status === 'wishlist' && (
             <div style={{ fontSize: 12, color: COLORS.textMuted, textAlign: 'center', padding: '8px 0' }}>
@@ -841,7 +1159,6 @@ function BookFormScreen({ onCancel, onSave, showToast, initialIsbn }) {
           )}
         </div>
 
-        {/* 5단계: 저장 */}
         <button
           onClick={handleSave}
           style={{ width: '100%', marginTop: 24, padding: '14px 0', background: COLORS.primary, color: '#fff', border: 'none', borderRadius: 999, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}
@@ -857,6 +1174,7 @@ function BookFormScreen({ onCancel, onSave, showToast, initialIsbn }) {
 export default function App() {
   const [screen, setScreen] = useState('home');
   const [selected, setSelected] = useState(null);
+  const [recordCtx, setRecordCtx] = useState(null);
   const [toast, setToast] = useState('');
   const [scannedIsbn, setScannedIsbn] = useState('');
   const [books, setBooks] = useState({
@@ -882,18 +1200,99 @@ export default function App() {
   };
 
   const handleAddBook = () => setScreen('addChoice');
-
   const handleGoScan = () => setScreen('scan');
-
   const handleGoManualForm = () => {
     setScannedIsbn('');
     setScreen('form');
   };
-
   const handleBarcodeDetected = (code) => {
     setScannedIsbn(code);
     showToast(`바코드 인식 완료: ${code}`);
     setScreen('form');
+  };
+
+  const handleOpenRecord = (round, mode) => {
+    setRecordCtx({ bookId: selected.book.id, status: selected.status, round, mode: mode || 'edit' });
+    setScreen('record');
+  };
+
+  const handleBackFromRecord = () => {
+    setScreen('detail');
+    setRecordCtx(null);
+  };
+
+  const updateRoundBlocks = (bookId, status, round, blocks) => {
+    setBooks((prev) => {
+      const list = prev[status].map((b) => {
+        if (b.id !== bookId) return b;
+        const current = b.records[round];
+        const nextStatus = current.status === 'empty' ? 'active' : current.status;
+        return { ...b, records: { ...b.records, [round]: { ...current, status: nextStatus, blocks } } };
+      });
+      return { ...prev, [status]: list };
+    });
+    if (selected && selected.book.id === bookId) {
+      setSelected((s) => {
+        const current = s.book.records[round];
+        const nextStatus = current.status === 'empty' ? 'active' : current.status;
+        return { ...s, book: { ...s.book, records: { ...s.book.records, [round]: { ...current, status: nextStatus, blocks } } } };
+      });
+    }
+  };
+
+  const completeRound = (bookId, status, round) => {
+    const today = new Date();
+    const dateStr = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
+    const defaultQuestions = [
+      { id: 'q1', text: '이 책을 통해 새롭게 바라보게 된 가치관은 무엇인가요?', answer: '' },
+      { id: 'q2', text: '이 책의 상황을 나라면 어떻게 다르게 겪었을까요?', answer: '' },
+      { id: 'q3', text: '이 책이 지금의 나에게 던지고자 하는 메시지는 무엇일까요?', answer: '' },
+    ];
+    setBooks((prev) => {
+      const list = prev[status].map((b) => {
+        if (b.id !== bookId) return b;
+        const current = b.records[round];
+        return { ...b, records: { ...b.records, [round]: { ...current, status: 'completed', completedDate: dateStr, questions: current.questions.length ? current.questions : defaultQuestions } } };
+      });
+      return { ...prev, [status]: list };
+    });
+    setSelected((s) => {
+      if (!s || s.book.id !== bookId) return s;
+      const current = s.book.records[round];
+      return { ...s, book: { ...s.book, records: { ...s.book.records, [round]: { ...current, status: 'completed', completedDate: dateStr, questions: current.questions.length ? current.questions : defaultQuestions } } } };
+    });
+  };
+
+  const handleCompleteRound = (round) => {
+    completeRound(recordCtx.bookId, recordCtx.status, round);
+    setScreen('aiQuestions');
+  };
+
+  const handleGoToQuestions = (round) => {
+    setScreen('aiQuestions');
+  };
+
+  const handleCloseQuestions = () => {
+    setRecordCtx((ctx) => ({ ...ctx, mode: 'read' }));
+    setScreen('record');
+  };
+
+  const updateQuestionAnswer = (bookId, status, round, questionId, answer) => {
+    setBooks((prev) => {
+      const list = prev[status].map((b) => {
+        if (b.id !== bookId) return b;
+        const current = b.records[round];
+        const questions = current.questions.map((q) => (q.id === questionId ? { ...q, answer } : q));
+        return { ...b, records: { ...b.records, [round]: { ...current, questions } } };
+      });
+      return { ...prev, [status]: list };
+    });
+    setSelected((s) => {
+      if (!s || s.book.id !== bookId) return s;
+      const current = s.book.records[round];
+      const questions = current.questions.map((q) => (q.id === questionId ? { ...q, answer } : q));
+      return { ...s, book: { ...s.book, records: { ...s.book.records, [round]: { ...current, questions } } } };
+    });
   };
 
   const handleSaveBook = (data) => {
@@ -909,7 +1308,7 @@ export default function App() {
       palette: data.palette,
       coverImageUrl: data.coverImageUrl,
       isFavoriteBook: data.isFavoriteBook,
-      records: { 1: [], 2: [], 3: [] },
+      records: { 1: emptyRound(), 2: emptyRound(), 3: emptyRound() },
     };
 
     let bucket = data.status;
@@ -939,7 +1338,29 @@ export default function App() {
           <HomeScreen books={books} onSelectBook={handleSelectBook} onAddBook={handleAddBook} showToast={showToast} />
         )}
         {screen === 'detail' && selected && (
-          <BookDetailScreen book={selected.book} status={selected.status} onBack={handleBack} showToast={showToast} />
+          <BookDetailScreen book={selected.book} status={selected.status} onBack={handleBack} onOpenRecord={handleOpenRecord} showToast={showToast} />
+        )}
+        {screen === 'record' && recordCtx && selected && (
+          <RecordScreen
+            book={selected.book}
+            round={recordCtx.round}
+            roundData={selected.book.records[recordCtx.round]}
+            mode={recordCtx.mode}
+            onBack={handleBackFromRecord}
+            onUpdateBlocks={(round, blocks) => updateRoundBlocks(recordCtx.bookId, recordCtx.status, round, blocks)}
+            onComplete={handleCompleteRound}
+            onGoToQuestions={handleGoToQuestions}
+            showToast={showToast}
+          />
+        )}
+        {screen === 'aiQuestions' && recordCtx && selected && (
+          <AIQuestionScreen
+            book={selected.book}
+            round={recordCtx.round}
+            roundData={selected.book.records[recordCtx.round]}
+            onUpdateAnswer={(round, questionId, answer) => updateQuestionAnswer(recordCtx.bookId, recordCtx.status, round, questionId, answer)}
+            onClose={handleCloseQuestions}
+          />
         )}
         {screen === 'form' && (
           <BookFormScreen onCancel={handleBack} onSave={handleSaveBook} showToast={showToast} initialIsbn={scannedIsbn} />
