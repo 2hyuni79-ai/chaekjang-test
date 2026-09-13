@@ -54,19 +54,19 @@ const seededRound1 = {
 };
 
 const initialReading = [
-  { id: 1, title: '아무튼, 여름', author: '김신희', progress: 42, palette: 0, note: '여름은 매번 나에게 다른 질문을 던진다.', current: true, isFavoriteBook: false, records: { 1: seededRound1, 2: emptyRound(), 3: emptyRound() } },
-  { id: 2, title: '인간관계론', author: '데일 카네기', progress: 67, palette: 1, isFavoriteBook: false, records: { 1: emptyRound(), 2: emptyRound(), 3: emptyRound() } },
-  { id: 3, title: '도둑맞은 집중력', author: '요한 하리', progress: 39, palette: 2, isFavoriteBook: false, records: { 1: emptyRound(), 2: emptyRound(), 3: emptyRound() } },
+  { id: 1, title: '아무튼, 여름', author: '김신희', progress: 42, palette: 0, note: '여름은 매번 나에게 다른 질문을 던진다.', current: true, isFavoriteBook: false, publisher: '위고', year: '2020', genre: '시/에세이', records: { 1: seededRound1, 2: emptyRound(), 3: emptyRound() } },
+  { id: 2, title: '인간관계론', author: '데일 카네기', translator: '베스트트랜스', progress: 67, palette: 1, isFavoriteBook: false, publisher: '더클래식', year: '2019', genre: '자기계발', records: { 1: emptyRound(), 2: emptyRound(), 3: emptyRound() } },
+  { id: 3, title: '도둑맞은 집중력', author: '요한 하리', translator: '김하현', progress: 39, palette: 2, isFavoriteBook: false, publisher: '어크로스', year: '2023', genre: '심리학', records: { 1: emptyRound(), 2: emptyRound(), 3: emptyRound() } },
   { id: 4, title: '단순하게 산다는 것', author: '도미니크 로로', progress: 20, palette: 3, isFavoriteBook: false, records: { 1: emptyRound(), 2: emptyRound(), 3: emptyRound() } },
-  { id: 5, title: '나는 나로 살기로 했다', author: '김수현', progress: 10, palette: 4, isFavoriteBook: false, records: { 1: emptyRound(), 2: emptyRound(), 3: emptyRound() } },
+  { id: 5, title: '나는 나로 살기로 했다', author: '김수현', progress: 10, palette: 4, isFavoriteBook: false, publisher: '마음의숲', year: '2016', genre: '자기계발', records: { 1: emptyRound(), 2: emptyRound(), 3: emptyRound() } },
   { id: 6, title: '오늘도 잘 버텨냈습니다', author: '전건우', progress: 4, palette: 5, isFavoriteBook: false, records: { 1: emptyRound(), 2: emptyRound(), 3: emptyRound() } },
 ];
 
 const initialCompleted = [
-  { id: 7, title: '사피엔스', author: '유발 하라리', date: '2026.07.30', note: '인류는 결국 이야기를 믿는 동물이다.', palette: 6, isFavoriteBook: true, records: { 1: { status: 'completed', completedDate: '2026.07.30', blocks: [{ id: 'b1', kind: 'free', text: '인류는 결국 이야기를 믿는 동물이다. 화폐, 국가, 종교 모두 우리가 함께 믿기로 한 이야기일 뿐이라는 게 계속 마음에 남았다.' }], questions: [] }, 2: emptyRound(), 3: emptyRound() } },
-  { id: 8, title: '미움받을 용기', author: '기시미 이치로', date: '2026.08.10', note: '과거는 바꿀 수 없어도, 지금은 바꿀 수 있다.', palette: 7, isFavoriteBook: false, records: { 1: emptyRound(), 2: emptyRound(), 3: emptyRound() } },
-  { id: 9, title: '죽음의 수용소에서', author: '빅터 프랭클', date: '2026.08.05', note: '왜 살아야 하는지 아는 사람은 견딘다.', palette: 0, isFavoriteBook: false, records: { 1: emptyRound(), 2: emptyRound(), 3: emptyRound() } },
-  { id: 10, title: '달러구트 꿈 백화점', author: '이미예', date: '2026.07.20', note: '꿈도 결국, 우리가 고르는 것이다.', palette: 1, isFavoriteBook: false, records: { 1: emptyRound(), 2: emptyRound(), 3: emptyRound() } },
+  { id: 7, title: '사피엔스', author: '유발 하라리', translator: '조현욱', publisher: '김영사', year: '2015', genre: '과학', startDate: '2026.07.02', date: '2026.07.30', note: '인류는 결국 이야기를 믿는 동물이다.', palette: 6, isFavoriteBook: true, records: { 1: { status: 'completed', completedDate: '2026.07.30', blocks: [{ id: 'b1', kind: 'free', text: '인류는 결국 이야기를 믿는 동물이다. 화폐, 국가, 종교 모두 우리가 함께 믿기로 한 이야기일 뿐이라는 게 계속 마음에 남았다.' }], questions: [] }, 2: emptyRound(), 3: emptyRound() } },
+  { id: 8, title: '미움받을 용기', author: '기시미 이치로', translator: '전경아', publisher: '인플루엔셜', year: '2014', genre: '심리학', startDate: '2026.07.28', date: '2026.08.10', note: '과거는 바꿀 수 없어도, 지금은 바꿀 수 있다.', palette: 7, isFavoriteBook: false, records: { 1: emptyRound(), 2: emptyRound(), 3: emptyRound() } },
+  { id: 9, title: '죽음의 수용소에서', author: '빅터 프랭클', translator: '이시형', publisher: '청아출판사', year: '2005', genre: '심리학', startDate: '2026.07.25', date: '2026.08.05', note: '왜 살아야 하는지 아는 사람은 견딘다.', palette: 0, isFavoriteBook: false, records: { 1: emptyRound(), 2: emptyRound(), 3: emptyRound() } },
+  { id: 10, title: '달러구트 꿈 백화점', author: '이미예', publisher: '팩토리나인', year: '2020', genre: '소설', startDate: '2026.07.05', date: '2026.07.20', note: '꿈도 결국, 우리가 고르는 것이다.', palette: 1, isFavoriteBook: false, records: { 1: emptyRound(), 2: emptyRound(), 3: emptyRound() } },
 ];
 
 const initialPaused = [
@@ -144,7 +144,7 @@ function Toast({ message }) {
 }
 
 /* ---------- 홈 화면 ---------- */
-function HomeScreen({ books, onSelectBook, onAddBook, showToast }) {
+function HomeScreen({ books, onSelectBook, onAddBook, onOpenFavorites, showToast }) {
   const [activeTab, setActiveTab] = useState('reading');
   const activeList = books[activeTab];
   const currentBook = books.reading.find((b) => b.current);
@@ -259,7 +259,7 @@ function HomeScreen({ books, onSelectBook, onAddBook, showToast }) {
                 )}
                 {activeTab === 'completed' && (
                   <>
-                    <div style={{ fontSize: 11, color: COLORS.textMuted, marginTop: 4 }}>완독일 {book.date}</div>
+                    <div style={{ fontSize: 11, color: COLORS.textMuted, marginTop: 4 }}>{book.startDate ? `${book.startDate} ~ ${book.date}` : `완독일 ${book.date}`}</div>
                     <div style={{ fontSize: 12, color: COLORS.text, marginTop: 4, lineHeight: 1.4, wordBreak: 'keep-all' }}>"{book.note}"</div>
                   </>
                 )}
@@ -297,10 +297,10 @@ function HomeScreen({ books, onSelectBook, onAddBook, showToast }) {
         <button onClick={onAddBook} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, borderRadius: '50%', background: COLORS.primary, color: '#fff', marginTop: -16, border: 'none', cursor: 'pointer' }}>
           <Plus size={22} />
         </button>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: COLORS.textMuted }}>
+        <button onClick={onOpenFavorites} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: COLORS.textMuted, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
           <Heart size={20} />
           <span style={{ fontSize: 10, marginTop: 2 }}>인생책</span>
-        </div>
+        </button>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: COLORS.textMuted }}>
           <User size={20} />
           <span style={{ fontSize: 10, marginTop: 2 }}>내 정보</span>
@@ -377,9 +377,20 @@ function BookDetailScreen({ book, status, onBack, onOpenRecord, showToast }) {
               </>
             )}
             {status === 'completed' && (
-              <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 10 }}>완독일 {book.date}</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 10 }}>
+                {book.startDate ? `${book.startDate} ~ ${book.date}` : `완독일 ${book.date}`}
+              </div>
             )}
           </div>
+
+          {(book.translator || book.publisher || book.year || book.genre) && (
+            <div style={{ marginTop: 14, display: 'flex', flexWrap: 'wrap', gap: '4px 10px' }}>
+              {book.translator && <span style={{ fontSize: 12, color: COLORS.textMuted }}>역자 {book.translator}</span>}
+              {book.publisher && <span style={{ fontSize: 12, color: COLORS.textMuted }}>{book.publisher}</span>}
+              {book.year && <span style={{ fontSize: 12, color: COLORS.textMuted }}>{book.year}</span>}
+              {book.genre && <span style={{ fontSize: 12, color: COLORS.textMuted, padding: '2px 8px', background: COLORS.secondarySoft, borderRadius: 999 }}>{book.genre}</span>}
+            </div>
+          )}
 
           {status === 'completed' && (
             <div style={{ marginTop: 16, padding: 14, background: COLORS.surface, borderRadius: 16, border: `1px solid ${COLORS.border}` }}>
@@ -408,16 +419,17 @@ function BookDetailScreen({ book, status, onBack, onOpenRecord, showToast }) {
           )}
         </div>
 
-        <div style={{ display: 'flex', gap: 20, padding: '20px 16px 0', borderBottom: `1px solid ${COLORS.border}`, marginTop: 20 }}>
+        <div style={{ display: 'flex', gap: 8, padding: '20px 16px 16px' }}>
           {[1, 2, 3].map((r) => (
             <button
               key={r}
               onClick={() => setRound(r)}
               style={{
-                background: 'none', border: 'none', cursor: 'pointer', paddingBottom: 10,
-                fontSize: 14, fontWeight: round === r ? 700 : 500,
-                color: round === r ? COLORS.text : COLORS.textMuted,
-                borderBottom: round === r ? `2px solid ${COLORS.primary}` : '2px solid transparent',
+                background: round === r ? COLORS.primary : 'transparent',
+                border: round === r ? 'none' : `1px solid ${COLORS.border}`,
+                borderRadius: 999, padding: '8px 16px', cursor: 'pointer',
+                fontSize: 13, fontWeight: 600,
+                color: round === r ? '#fff' : COLORS.textMuted,
               }}
             >
               {r}회독
@@ -668,7 +680,7 @@ function RecordScreen({ book, round, roundData, mode, onBack, onUpdateBlocks, on
 }
 
 /* ---------- AI 질문 페이지 ---------- */
-function AIQuestionScreen({ book, round, roundData, onUpdateAnswer, onClose }) {
+function AIQuestionScreen({ book, status, round, roundData, onUpdateAnswer, onClose, onMarkCompleted }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: AI_BG }}>
       <div style={{ padding: '20px 16px 8px' }}>
@@ -694,15 +706,143 @@ function AIQuestionScreen({ book, round, roundData, onUpdateAnswer, onClose }) {
         ))}
       </div>
 
-      <div style={{ padding: '12px 16px 24px' }}>
+      <div style={{ padding: '12px 16px 24px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {status === 'reading' && (
+          <button
+            onClick={onMarkCompleted}
+            style={{ width: '100%', padding: '13px 0', background: COLORS.primary, color: '#fff', border: 'none', borderRadius: 999, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
+          >
+            완독으로 이동하기
+          </button>
+        )}
         <button
           onClick={onClose}
-          style={{ width: '100%', padding: '13px 0', background: COLORS.primary, color: '#fff', border: 'none', borderRadius: 999, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
+          style={{
+            width: '100%', padding: '13px 0', borderRadius: 999, fontSize: 14, fontWeight: 700, cursor: 'pointer',
+            background: status === 'reading' ? 'none' : COLORS.primary,
+            color: status === 'reading' ? COLORS.textMuted : '#fff',
+            border: status === 'reading' ? `1px solid ${AI_BORDER}` : 'none',
+          }}
         >
           닫기
         </button>
       </div>
     </div>
+  );
+}
+
+/* ---------- 생 책등 ---------- */
+function Spine({ book, onClick }) {
+  const p = PALETTES[book.palette % PALETTES.length];
+  return (
+    <button
+      onClick={onClick}
+      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+    >
+      <div
+        style={{
+          width: '100%', aspectRatio: '1 / 2.1', borderRadius: 6, background: p.bg,
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', padding: '10px 0',
+        }}
+      >
+        <div style={{ width: 14, height: 14, borderRadius: '50%', border: `1.5px solid ${p.fg}`, opacity: 0.6, marginBottom: 10 }} />
+        <div
+          style={{
+            writingMode: 'vertical-rl', textOrientation: 'mixed', color: p.fg, fontSize: 12, fontWeight: 600,
+            lineHeight: 1.3, maxHeight: '78%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          }}
+        >
+          {book.title}
+        </div>
+      </div>
+      <div style={{ fontSize: 10, color: COLORS.textMuted, textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        {book.author}
+      </div>
+    </button>
+  );
+}
+
+function EmptySlot({ onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        width: '100%', aspectRatio: '1 / 2.1', borderRadius: 6, background: COLORS.surface,
+        border: `1.5px dashed ${COLORS.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+      }}
+    >
+      <Plus size={18} color={COLORS.secondary} />
+    </button>
+  );
+}
+
+function FavoritesScreen({ favorites, onSelectBook, onAddSlot, onBack }) {
+  const slots = [...favorites];
+  while (slots.length < 9) slots.push(null);
+
+  return (
+    <>
+      <div style={{ position: 'sticky', top: 0, zIndex: 10, display: 'flex', alignItems: 'center', gap: 12, padding: '20px 16px 4px', background: COLORS.bg }}>
+        <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: COLORS.text }}>
+          <ArrowLeft size={20} />
+        </button>
+        <div>
+          <div style={{ fontSize: 17, fontWeight: 700 }}>나의 인생책</div>
+        </div>
+      </div>
+      <div style={{ padding: '4px 16px 8px', fontSize: 12, color: COLORS.textMuted }}>내가 오래 기억하고 싶은 책들을 모아두는 곳</div>
+
+      <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px 40px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+          {slots.map((book, idx) =>
+            book ? (
+              <Spine key={book.id} book={book} onClick={() => onSelectBook(book)} />
+            ) : (
+              <EmptySlot key={`empty-${idx}`} onClick={onAddSlot} />
+            )
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+function FavoritePickerScreen({ candidates, onPick, onCancel }) {
+  return (
+    <>
+      <div style={{ position: 'sticky', top: 0, zIndex: 10, display: 'flex', alignItems: 'center', gap: 12, padding: '20px 16px 12px', background: COLORS.bg }}>
+        <button onClick={onCancel} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: COLORS.text }}>
+          <ArrowLeft size={20} />
+        </button>
+        <h1 style={{ fontSize: 17, fontWeight: 700, margin: 0 }}>인생책으로 추가할 책 고르기</h1>
+      </div>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '8px 16px 32px' }}>
+        {candidates.length === 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '48px 0', background: COLORS.surface, borderRadius: 16, border: `1px solid ${COLORS.border}` }}>
+            <div style={{ fontSize: 13, color: COLORS.textMuted }}>추가할 수 있는 책이 없어요.</div>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {candidates.map((book) => (
+              <button
+                key={book.id}
+                onClick={() => onPick(book)}
+                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 12, background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 14, cursor: 'pointer', textAlign: 'left' }}
+              >
+                <div style={{ width: 44 }}>
+                  <BookCover palette={book.palette} title={book.title} imageUrl={book.coverImageUrl} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 600 }}>{book.title}</div>
+                  <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 2 }}>{book.author}</div>
+                </div>
+                <Plus size={18} color={COLORS.primary} />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
   );
 }
 
@@ -878,6 +1018,7 @@ function BookFormScreen({ onCancel, onSave, showToast, initialIsbn }) {
   const [totalPages, setTotalPages] = useState('');
   const [currentPage, setCurrentPage] = useState('');
   const [completedDate, setCompletedDate] = useState('');
+  const [startDate, setStartDate] = useState('');
   const [completionOneLine, setCompletionOneLine] = useState('');
   const [stoppedDate, setStoppedDate] = useState('');
   const [stoppedReason, setStoppedReason] = useState('');
@@ -945,6 +1086,7 @@ function BookFormScreen({ onCancel, onSave, showToast, initialIsbn }) {
       totalPages: totalPages ? Number(totalPages) : 0,
       currentPage: currentPage ? Number(currentPage) : 0,
       completedDate,
+      startDate,
       completionOneLine: completionOneLine.trim(),
       stoppedDate,
       stoppedReason: stoppedReason.trim(),
@@ -1112,6 +1254,9 @@ function BookFormScreen({ onCancel, onSave, showToast, initialIsbn }) {
               <Field label="전체 페이지 수">
                 <input type="number" value={totalPages} onChange={(e) => setTotalPages(e.target.value)} placeholder="0" style={inputStyle} />
               </Field>
+              <Field label="시작일">
+                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} style={inputStyle} />
+              </Field>
               <Field label="완독일">
                 <input type="date" value={completedDate} onChange={(e) => setCompletedDate(e.target.value)} style={inputStyle} />
               </Field>
@@ -1200,6 +1345,41 @@ export default function App() {
   };
 
   const handleAddBook = () => setScreen('addChoice');
+  const handleOpenFavorites = () => setScreen('favorites');
+  const handleOpenFavoritePicker = () => setScreen('favoritePicker');
+
+  const handlePickFavorite = (book) => {
+    setBooks((prev) => {
+      const updateList = (list) => list.map((b) => (b.id === book.id ? { ...b, isFavoriteBook: true } : b));
+      return { ...prev, reading: updateList(prev.reading), completed: updateList(prev.completed), paused: updateList(prev.paused) };
+    });
+    setScreen('favorites');
+    showToast(`"${book.title}" 이(가) 인생책에 추가됐어요`);
+  };
+
+  const getFavoriteCandidates = () => {
+    const combined = [
+      ...books.reading.map((b) => ({ ...b, __status: 'reading' })),
+      ...books.completed.map((b) => ({ ...b, __status: 'completed' })),
+      ...books.paused.map((b) => ({ ...b, __status: 'paused' })),
+    ];
+    return combined.filter((b) => !b.isFavoriteBook);
+  };
+
+  const getFavorites = () => {
+    const combined = [
+      ...books.reading.map((b) => ({ ...b, __status: 'reading' })),
+      ...books.completed.map((b) => ({ ...b, __status: 'completed' })),
+      ...books.paused.map((b) => ({ ...b, __status: 'paused' })),
+    ];
+    return combined.filter((b) => b.isFavoriteBook);
+  };
+
+  const handleSelectFavorite = (book) => {
+    setSelected({ book, status: book.__status });
+    setScreen('detail');
+  };
+
   const handleGoScan = () => setScreen('scan');
   const handleGoManualForm = () => {
     setScannedIsbn('');
@@ -1277,6 +1457,30 @@ export default function App() {
     setScreen('record');
   };
 
+  const handleMarkCompleted = () => {
+    const bookId = recordCtx.bookId;
+    const fromStatus = recordCtx.status;
+    const bookTitle = selected.book.title;
+    if (fromStatus === 'completed') return;
+    const today = new Date();
+    const dateStr = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
+    setBooks((prev) => {
+      const book = prev[fromStatus].find((b) => b.id === bookId);
+      if (!book) return prev;
+      const { progress, current, pausedDate, stoppedReason, ...rest } = book;
+      const movedBook = { ...rest, date: dateStr };
+      return {
+        ...prev,
+        [fromStatus]: prev[fromStatus].filter((b) => b.id !== bookId),
+        completed: [movedBook, ...prev.completed],
+      };
+    });
+    showToast(`"${bookTitle}" 을(를) 완독으로 이동했어요`);
+    setScreen('home');
+    setSelected(null);
+    setRecordCtx(null);
+  };
+
   const updateQuestionAnswer = (bookId, status, round, questionId, answer) => {
     setBooks((prev) => {
       const list = prev[status].map((b) => {
@@ -1320,7 +1524,7 @@ export default function App() {
       const progress = data.totalPages > 0 ? Math.min(100, Math.round((data.currentPage / data.totalPages) * 100)) : 0;
       entry = { ...base, progress, totalPages: data.totalPages, currentPage: data.currentPage, note: '' };
     } else if (data.status === 'completed') {
-      entry = { ...base, date: data.completedDate || '', note: data.completionOneLine, totalPages: data.totalPages, currentPage: data.totalPages };
+      entry = { ...base, startDate: data.startDate || '', date: data.completedDate || '', note: data.completionOneLine, totalPages: data.totalPages, currentPage: data.totalPages };
     } else if (data.status === 'paused') {
       const progress = data.totalPages > 0 ? Math.min(100, Math.round((data.currentPage / data.totalPages) * 100)) : 0;
       entry = { ...base, progress, totalPages: data.totalPages, currentPage: data.currentPage, pausedDate: data.stoppedDate || '', stoppedReason: data.stoppedReason };
@@ -1335,7 +1539,7 @@ export default function App() {
     <div style={{ background: COLORS.bg, color: COLORS.text, fontFamily: FONT_STACK, minHeight: '100vh', width: '100%', display: 'flex', justifyContent: 'center' }}>
       <div style={{ width: '100%', maxWidth: 384, minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative', background: COLORS.bg }}>
         {screen === 'home' && (
-          <HomeScreen books={books} onSelectBook={handleSelectBook} onAddBook={handleAddBook} showToast={showToast} />
+          <HomeScreen books={books} onSelectBook={handleSelectBook} onAddBook={handleAddBook} onOpenFavorites={handleOpenFavorites} showToast={showToast} />
         )}
         {screen === 'detail' && selected && (
           <BookDetailScreen book={selected.book} status={selected.status} onBack={handleBack} onOpenRecord={handleOpenRecord} showToast={showToast} />
@@ -1356,10 +1560,12 @@ export default function App() {
         {screen === 'aiQuestions' && recordCtx && selected && (
           <AIQuestionScreen
             book={selected.book}
+            status={recordCtx.status}
             round={recordCtx.round}
             roundData={selected.book.records[recordCtx.round]}
             onUpdateAnswer={(round, questionId, answer) => updateQuestionAnswer(recordCtx.bookId, recordCtx.status, round, questionId, answer)}
             onClose={handleCloseQuestions}
+            onMarkCompleted={handleMarkCompleted}
           />
         )}
         {screen === 'form' && (
@@ -1370,6 +1576,12 @@ export default function App() {
         )}
         {screen === 'scan' && (
           <ScanScreen onDetected={handleBarcodeDetected} onCancel={() => setScreen('addChoice')} showToast={showToast} />
+        )}
+        {screen === 'favorites' && (
+          <FavoritesScreen favorites={getFavorites()} onSelectBook={handleSelectFavorite} onAddSlot={handleOpenFavoritePicker} onBack={handleBack} />
+        )}
+        {screen === 'favoritePicker' && (
+          <FavoritePickerScreen candidates={getFavoriteCandidates()} onPick={handlePickFavorite} onCancel={() => setScreen('favorites')} />
         )}
         <Toast message={toast} />
       </div>
