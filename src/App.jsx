@@ -107,6 +107,41 @@ function blocksPreviewText(blocks) {
   return b.kind === 'quote' ? b.thoughtText : b.text;
 }
 
+function ReadOnlyBlock({ block }) {
+  if (block.kind === 'free') {
+    return (
+      <div style={{ fontSize: 15, lineHeight: 1.8, color: COLORS.text, whiteSpace: 'pre-wrap', marginBottom: 18 }}>
+        {block.text}
+      </div>
+    );
+  }
+  if (block.kind === 'tag') {
+    const Icon = tagIcon(block.label);
+    return (
+      <div style={{ marginBottom: 18 }}>
+        <div style={{ borderTop: `1px solid ${COLORS.border}`, paddingTop: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+            <Icon size={13} color={COLORS.primary} />
+            <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.primary }}>{block.label}</div>
+          </div>
+          <div style={{ fontSize: 14, lineHeight: 1.75, color: COLORS.text, whiteSpace: 'pre-wrap' }}>{block.text}</div>
+        </div>
+      </div>
+    );
+  }
+  if (block.kind === 'quote') {
+    return (
+      <div style={{ marginBottom: 18 }}>
+        <div style={{ borderLeft: `3px solid ${COLORS.secondary}`, paddingLeft: 12, marginBottom: 8 }}>
+          <div style={{ fontSize: 14, fontStyle: 'italic', color: COLORS.text, lineHeight: 1.7 }}>"{block.quoteText}"</div>
+        </div>
+        <div style={{ fontSize: 14, lineHeight: 1.75, color: COLORS.text, whiteSpace: 'pre-wrap' }}>{block.thoughtText}</div>
+      </div>
+    );
+  }
+  return null;
+}
+
 function BookCover({ palette, title, imageUrl, size = 'grid' }) {
   const [imgError, setImgError] = useState(false);
   const p = PALETTES[palette % PALETTES.length];
@@ -310,90 +345,189 @@ function HomeScreen({ books, onSelectBook, onAddBook, onOpenFavorites, showToast
   );
 }
 
+/* ---------- 개인 테마 이미지 모달 ---------- */
+function ThemeImageModal({ initialUrl, onSave, onRemove, onClose }) {
+  const [value, setValue] = useState(initialUrl || '');
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setValue(reader.result);
+    reader.readAsDataURL(file);
+  };
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 50 }} onClick={onClose}>
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{ width: '100%', maxWidth: 384, background: COLORS.bg, borderRadius: '20px 20px 0 0', padding: '20px 16px 28px' }}
+      >
+        <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>개인 테마 이미지</div>
+        <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: 14, lineHeight: 1.5 }}>
+          책 표지와 별개로, 이 책이 나에게 남긴 느낌을 담은 이미지를 상단 배경으로 써보세요.
+        </div>
+
+        {value && (
+          <div style={{ width: '100%', aspectRatio: '16 / 9', borderRadius: 12, overflow: 'hidden', marginBottom: 12, background: COLORS.secondarySoft }}>
+            <img src={value} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </div>
+        )}
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          style={{ display: 'none' }}
+        />
+        <button
+          onClick={() => fileInputRef.current.click()}
+          style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '13px 0', background: COLORS.secondarySoft, border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, color: COLORS.primary, cursor: 'pointer', marginBottom: 12 }}
+        >
+          <Camera size={16} /> 휴대폰에서 사진 선택하기
+        </button>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '4px 0 12px' }}>
+          <div style={{ flex: 1, height: 1, background: COLORS.border }} />
+          <span style={{ fontSize: 11, color: COLORS.textMuted }}>또는</span>
+          <div style={{ flex: 1, height: 1, background: COLORS.border }} />
+        </div>
+
+        <input
+          value={value.startsWith('data:') ? '' : value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder={value.startsWith('data:') ? '사진이 선택되어있어요 (주소를 입력하면 대체돼요)' : 'https://... (이미지 주소)'}
+          style={inputStyle}
+        />
+        <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+          {initialUrl && (
+            <button
+              onClick={onRemove}
+              style={{ flex: 1, padding: '12px 0', background: 'none', border: `1px solid ${COLORS.border}`, borderRadius: 999, fontSize: 13, fontWeight: 600, color: COLORS.textMuted, cursor: 'pointer' }}
+            >
+              제거하기
+            </button>
+          )}
+          <button
+            onClick={() => onSave(value.trim())}
+            style={{ flex: 1, padding: '12px 0', background: COLORS.primary, border: 'none', borderRadius: 999, fontSize: 13, fontWeight: 700, color: '#fff', cursor: 'pointer' }}
+          >
+            저장
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ---------- 책 상세 화면 ---------- */
-function BookDetailScreen({ book, status, onBack, onOpenRecord, showToast }) {
+function BookDetailScreen({ book, status, onBack, onOpenRecord, onOpenQuestions, onUpdateThemeImage, showToast }) {
   const [round, setRound] = useState(1);
   const [note, setNote] = useState(book.note || '');
   const [editingNote, setEditingNote] = useState(false);
+  const [themeModalOpen, setThemeModalOpen] = useState(false);
 
   const p = PALETTES[book.palette % PALETTES.length];
   const roundData = book.records[round];
   const preview = blocksPreviewText(roundData.blocks);
 
+  const handleSaveTheme = (url) => {
+    onUpdateThemeImage(url);
+    setThemeModalOpen(false);
+    showToast(url ? '개인 테마 이미지를 저장했어요' : '개인 테마 이미지를 제거했어요');
+  };
+
   return (
     <>
-      <div style={{ position: 'relative', height: 180, background: p.bg, flexShrink: 0, overflow: 'hidden' }}>
-        {book.coverImageUrl && (
-          <img
-            src={book.coverImageUrl}
-            alt=""
-            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(2px) brightness(0.7)', transform: 'scale(1.1)' }}
-            onError={(e) => { e.target.style.display = 'none'; }}
-          />
-        )}
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 16px' }}>
-          <button onClick={onBack} style={{ background: 'rgba(255,255,255,0.16)', border: 'none', borderRadius: '50%', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-            <ArrowLeft size={18} color="#fff" />
-          </button>
-          <button
-            onClick={() => showToast('개인 테마 이미지 변경은 다음 단계에서 만들 예정이에요')}
-            style={{ background: 'rgba(255,255,255,0.16)', border: 'none', borderRadius: '50%', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-          >
-            <MoreHorizontal size={18} color="#fff" />
-          </button>
+      <div style={{ position: 'relative' }}>
+        <div style={{ height: 176, background: p.bg, overflow: 'hidden' }}>
+          {book.themeImageUrl ? (
+            <img
+              src={book.themeImageUrl}
+              alt=""
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+              onError={(e) => { e.target.style.display = 'none'; }}
+            />
+          ) : (
+            book.coverImageUrl && (
+              <img
+                src={book.coverImageUrl}
+                alt=""
+                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', filter: 'blur(2px) brightness(0.7)', transform: 'scale(1.1)' }}
+                onError={(e) => { e.target.style.display = 'none'; }}
+              />
+            )
+          )}
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 16px' }}>
+            <button onClick={onBack} style={{ background: 'rgba(255,255,255,0.16)', border: 'none', borderRadius: '50%', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+              <ArrowLeft size={18} color="#fff" />
+            </button>
+            <button
+              onClick={() => setThemeModalOpen(true)}
+              style={{ background: 'rgba(255,255,255,0.16)', border: 'none', borderRadius: '50%', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+            >
+              <MoreHorizontal size={18} color="#fff" />
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 40 }}>
-        <div style={{ padding: '0 16px', marginTop: -56 }}>
-          <div style={{ width: 96 }}>
+        <div style={{ position: 'absolute', left: 16, right: 16, top: 96, display: 'flex', alignItems: 'flex-end', gap: 12 }}>
+          <div style={{ width: 128, flexShrink: 0, borderRadius: 14, boxShadow: '0 8px 20px rgba(0,0,0,0.35)' }}>
             <BookCover palette={book.palette} title={book.title} imageUrl={book.coverImageUrl} size="hero" />
           </div>
-          <div style={{ marginTop: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <div style={{ fontSize: 19, fontWeight: 700, wordBreak: 'keep-all' }}>{book.title}</div>
-              {book.isFavoriteBook && <Heart size={16} color={COLORS.primary} fill={COLORS.primary} />}
+
+          <div style={{ flex: 1, minWidth: 0, paddingBottom: 2 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 4 }}>
+              <div style={{ fontSize: 18, fontWeight: 700, lineHeight: 1.25, color: COLORS.text, wordBreak: 'keep-all', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textShadow: '0 1px 4px rgba(0,0,0,0.18)' }}>
+                {book.title}
+              </div>
+              {book.isFavoriteBook && <Heart size={13} color={COLORS.primary} fill={COLORS.primary} style={{ flexShrink: 0, marginTop: 4 }} />}
             </div>
-            <div style={{ fontSize: 13, color: COLORS.textMuted, marginTop: 2 }}>{book.author}</div>
+            <div style={{ fontSize: 13, color: COLORS.textMuted, marginTop: 3, textShadow: '0 1px 3px rgba(0,0,0,0.12)' }}>{book.author}</div>
+
+            {(book.publisher || book.year || book.genre) && (
+              <div style={{ fontSize: 11, color: COLORS.textMuted, marginTop: 5 }}>
+                {[book.publisher, book.year, book.genre].filter(Boolean).join(' · ')}
+              </div>
+            )}
 
             {status === 'reading' && (
-              <>
-                <div style={{ fontSize: 12, fontWeight: 600, color: COLORS.primary, marginTop: 10 }}>읽는 중 {book.progress}%</div>
-                <div style={{ height: 6, borderRadius: 999, background: COLORS.secondarySoft, marginTop: 6, maxWidth: 240 }}>
-                  <div style={{ height: 6, borderRadius: 999, width: `${book.progress}%`, background: COLORS.primary }} />
-                </div>
-              </>
+              <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.primary, marginTop: 5 }}>읽는 중 · {book.progress}%</div>
             )}
             {status === 'paused' && (
-              <>
-                <div style={{ fontSize: 12, fontWeight: 600, color: COLORS.textMuted, marginTop: 10 }}>중단 · {book.progress}%까지 읽음</div>
-                <div style={{ height: 6, borderRadius: 999, background: COLORS.secondarySoft, marginTop: 6, maxWidth: 240 }}>
-                  <div style={{ height: 6, borderRadius: 999, width: `${book.progress}%`, background: COLORS.textMuted }} />
-                </div>
-                <div style={{ fontSize: 11, color: COLORS.textMuted, marginTop: 6 }}>중단일 {book.pausedDate}</div>
-                {book.stoppedReason && (
-                  <div style={{ fontSize: 12, color: COLORS.text, marginTop: 4, lineHeight: 1.4 }}>"{book.stoppedReason}"</div>
-                )}
-              </>
+              <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textMuted, marginTop: 5 }}>중단 · {book.progress}%</div>
             )}
             {status === 'completed' && (
-              <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 10 }}>
-                {book.startDate ? `${book.startDate} ~ ${book.date}` : `완독일 ${book.date}`}
+              <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textMuted, marginTop: 5 }}>
+                {book.startDate ? `${book.startDate} ~ ${book.date}` : `완독일 · ${book.date}`}
               </div>
             )}
           </div>
+        </div>
+      </div>
 
-          {(book.translator || book.publisher || book.year || book.genre) && (
-            <div style={{ marginTop: 14, display: 'flex', flexWrap: 'wrap', gap: '4px 10px' }}>
-              {book.translator && <span style={{ fontSize: 12, color: COLORS.textMuted }}>역자 {book.translator}</span>}
-              {book.publisher && <span style={{ fontSize: 12, color: COLORS.textMuted }}>{book.publisher}</span>}
-              {book.year && <span style={{ fontSize: 12, color: COLORS.textMuted }}>{book.year}</span>}
-              {book.genre && <span style={{ fontSize: 12, color: COLORS.textMuted, padding: '2px 8px', background: COLORS.secondarySoft, borderRadius: 999 }}>{book.genre}</span>}
-            </div>
+      {themeModalOpen && (
+        <ThemeImageModal
+          initialUrl={book.themeImageUrl}
+          onSave={handleSaveTheme}
+          onRemove={() => handleSaveTheme('')}
+          onClose={() => setThemeModalOpen(false)}
+        />
+      )}
+
+      <div style={{ flex: 1, overflowY: 'auto', paddingTop: 92, paddingBottom: 40 }}>
+        <div style={{ padding: '0 16px' }}>
+          {status === 'paused' && (
+            <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: book.stoppedReason ? 4 : 0 }}>중단일 {book.pausedDate}</div>
+          )}
+          {status === 'paused' && book.stoppedReason && (
+            <div style={{ fontSize: 12, color: COLORS.text, lineHeight: 1.5 }}>"{book.stoppedReason}"</div>
           )}
 
           {status === 'completed' && (
-            <div style={{ marginTop: 16, padding: 14, background: COLORS.surface, borderRadius: 16, border: `1px solid ${COLORS.border}` }}>
+            <div style={{ marginTop: 4, padding: 14, background: COLORS.surface, borderRadius: 16, border: `1px solid ${COLORS.border}` }}>
               <div style={{ fontSize: 11, color: COLORS.textMuted, fontWeight: 600, marginBottom: 6 }}>나에게 남은 한 줄</div>
               {editingNote ? (
                 <div>
@@ -419,22 +553,25 @@ function BookDetailScreen({ book, status, onBack, onOpenRecord, showToast }) {
           )}
         </div>
 
-        <div style={{ display: 'flex', gap: 8, padding: '20px 16px 16px' }}>
-          {[1, 2, 3].map((r) => (
-            <button
-              key={r}
-              onClick={() => setRound(r)}
-              style={{
-                background: round === r ? COLORS.primary : 'transparent',
-                border: round === r ? 'none' : `1px solid ${COLORS.border}`,
-                borderRadius: 999, padding: '8px 16px', cursor: 'pointer',
-                fontSize: 13, fontWeight: 600,
-                color: round === r ? '#fff' : COLORS.textMuted,
-              }}
-            >
-              {r}회독
-            </button>
-          ))}
+        <div style={{ display: 'flex', gap: 4, padding: '20px 16px 16px' }}>
+          <div style={{ display: 'flex', gap: 4, background: COLORS.secondarySoft, borderRadius: 999, padding: 4, width: '100%' }}>
+            {[1, 2, 3].map((r) => (
+              <button
+                key={r}
+                onClick={() => setRound(r)}
+                style={{
+                  flex: 1,
+                  background: round === r ? COLORS.primary : 'transparent',
+                  border: 'none',
+                  borderRadius: 999, padding: '8px 0', cursor: 'pointer',
+                  fontSize: 13, fontWeight: 600,
+                  color: round === r ? '#fff' : COLORS.textMuted,
+                }}
+              >
+                {r}회독
+              </button>
+            ))}
+          </div>
         </div>
 
         <div style={{ padding: '20px 16px 0' }}>
@@ -447,32 +584,46 @@ function BookDetailScreen({ book, status, onBack, onOpenRecord, showToast }) {
               <span style={{ fontSize: 13, fontWeight: 600, color: COLORS.primary }}>{round}회독 기록 시작하기</span>
             </button>
           ) : (
-            <div style={{ width: '100%', textAlign: 'left', background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: 16 }}>
-              {roundData.status === 'completed' && (
-                <div style={{ fontSize: 11, color: COLORS.textMuted, marginBottom: 8 }}>완료 · {roundData.completedDate}</div>
-              )}
-              {roundData.status === 'active' && (
-                <div style={{ fontSize: 11, color: COLORS.primary, marginBottom: 8 }}>작성 중</div>
-              )}
-              <div
-                style={{
-                  fontSize: 14, color: COLORS.text, lineHeight: 1.7,
-                  display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden',
-                }}
+            <>
+              <button
+                onClick={() => onOpenRecord(round, 'edit')}
+                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '12px 0', background: COLORS.primary, color: '#fff', border: 'none', borderRadius: 999, fontSize: 13, fontWeight: 700, cursor: 'pointer', marginBottom: 16 }}
               >
-                {preview || '탭해서 이어서 써보세요'}
-              </div>
-              <div style={{ display: 'flex', gap: 16, marginTop: 12 }}>
+                <PenLine size={14} /> 이어서 쓰기
+              </button>
+
+              <div style={{ width: '100%', textAlign: 'left', background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: 16 }}>
                 {roundData.status === 'completed' && (
-                  <button onClick={() => onOpenRecord(round, 'read')} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: 12, color: COLORS.primary, fontWeight: 600 }}>
-                    다시 읽기 →
-                  </button>
+                  <div style={{ fontSize: 11, color: COLORS.textMuted, marginBottom: 12 }}>완료 · {roundData.completedDate}</div>
                 )}
-                <button onClick={() => onOpenRecord(round, 'edit')} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: 12, color: COLORS.primary, fontWeight: 600 }}>
-                  이어서 쓰기 →
-                </button>
+                {roundData.status === 'active' && (
+                  <div style={{ fontSize: 11, color: COLORS.primary, marginBottom: 12 }}>작성 중</div>
+                )}
+                {roundData.blocks.map((block) => (
+                  <ReadOnlyBlock key={block.id} block={block} />
+                ))}
               </div>
-            </div>
+
+              {roundData.status === 'completed' && (
+                <div style={{ marginTop: 12, padding: 16, background: AI_BG, border: `1px solid ${AI_BORDER}`, borderRadius: 16 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 12, color: COLORS.text }}>AI 질문</div>
+                  {[...roundData.questions].sort((a, b) => (a.answer ? 0 : 1) - (b.answer ? 0 : 1)).map((q) => (
+                    <div key={q.id} style={{ marginBottom: 12 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text, marginBottom: 4, lineHeight: 1.5 }}>{q.text}</div>
+                      <div style={{ fontSize: 13, color: q.answer ? COLORS.text : COLORS.textMuted, lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                        {q.answer || '아직 답변하지 않았어요'}
+                      </div>
+                    </div>
+                  ))}
+                  <button
+                    onClick={() => onOpenQuestions(round)}
+                    style={{ marginTop: 4, background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: 12, color: COLORS.primary, fontWeight: 700 }}
+                  >
+                    질문에 답하기 →
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -1396,9 +1547,24 @@ export default function App() {
     setScreen('record');
   };
 
+  const handleOpenQuestionsFromDetail = (round) => {
+    setRecordCtx({ bookId: selected.book.id, status: selected.status, round, mode: 'read' });
+    setScreen('aiQuestions');
+  };
+
   const handleBackFromRecord = () => {
     setScreen('detail');
     setRecordCtx(null);
+  };
+
+  const handleUpdateThemeImage = (url) => {
+    const bookId = selected.book.id;
+    const status = selected.status;
+    setBooks((prev) => ({
+      ...prev,
+      [status]: prev[status].map((b) => (b.id === bookId ? { ...b, themeImageUrl: url } : b)),
+    }));
+    setSelected((s) => ({ ...s, book: { ...s.book, themeImageUrl: url } }));
   };
 
   const updateRoundBlocks = (bookId, status, round, blocks) => {
@@ -1453,8 +1619,8 @@ export default function App() {
   };
 
   const handleCloseQuestions = () => {
-    setRecordCtx((ctx) => ({ ...ctx, mode: 'read' }));
-    setScreen('record');
+    setScreen('detail');
+    setRecordCtx(null);
   };
 
   const handleMarkCompleted = () => {
@@ -1542,7 +1708,7 @@ export default function App() {
           <HomeScreen books={books} onSelectBook={handleSelectBook} onAddBook={handleAddBook} onOpenFavorites={handleOpenFavorites} showToast={showToast} />
         )}
         {screen === 'detail' && selected && (
-          <BookDetailScreen book={selected.book} status={selected.status} onBack={handleBack} onOpenRecord={handleOpenRecord} showToast={showToast} />
+          <BookDetailScreen book={selected.book} status={selected.status} onBack={handleBack} onOpenRecord={handleOpenRecord} onOpenQuestions={handleOpenQuestionsFromDetail} onUpdateThemeImage={handleUpdateThemeImage} showToast={showToast} />
         )}
         {screen === 'record' && recordCtx && selected && (
           <RecordScreen
