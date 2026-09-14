@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   Search, Bell, MoreHorizontal, Home, Library, Plus, Heart, User, Bookmark,
   ArrowLeft, ChevronDown, PenLine, RefreshCw, ScanLine, Keyboard, CameraOff, Camera,
-  Lightbulb, HelpCircle, Sparkles,
+  Lightbulb, HelpCircle, Sparkles, BookOpen,
 } from 'lucide-react';
 
 const COLORS = {
@@ -241,7 +241,7 @@ function HomeScreen({ books, onSelectBook, onAddBook, onOpenFavorites, showToast
           )}
         </div>
 
-        <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', width: '100%', marginBottom: 14 }}>
           {TABS.map((tab) => {
             const active = activeTab === tab.key;
             return (
@@ -249,14 +249,39 @@ function HomeScreen({ books, onSelectBook, onAddBook, onOpenFavorites, showToast
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
                 style={{
-                  fontSize: 13, fontWeight: 600, padding: '8px 14px', borderRadius: 999,
-                  background: active ? COLORS.primary : 'transparent',
-                  color: active ? '#fff' : COLORS.textMuted,
-                  border: active ? 'none' : `1px solid ${COLORS.border}`,
+                  flex: 1,
+                  background: 'none',
+                  border: 'none',
+                  padding: '6px 2px 9px',
                   cursor: 'pointer',
+                  display: 'flex',
+                  justifyContent: 'center',
                 }}
               >
-                {tab.label} <span style={{ opacity: 0.75 }}>{books[tab.key].length}</span>
+                <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '2px 4px' }}>
+                  {active && (
+                    <BookOpen
+                      size={32}
+                      color={COLORS.primary}
+                      fill={COLORS.primary}
+                      style={{ position: 'absolute', opacity: 1, pointerEvents: 'none' }}
+                    />
+                  )}
+                  <span
+                    style={{
+                      position: 'relative',
+                      fontSize: 14,
+                      fontWeight: active ? 700 : 500,
+                      color: active ? '#FFFFFF' : COLORS.textMuted,
+                      textShadow: active
+                        ? `-1px 0 ${COLORS.primary}, 1px 0 ${COLORS.primary}, 0 -1px ${COLORS.primary}, 0 1px ${COLORS.primary}, -1px -1px ${COLORS.primary}, 1px 1px ${COLORS.primary}, -1px 1px ${COLORS.primary}, 1px -1px ${COLORS.primary}`
+                        : 'none',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {tab.label}
+                  </span>
+                </span>
               </button>
             );
           })}
